@@ -1,18 +1,25 @@
 package Bowling::Frame;
 
 use Class::Accessor::Lite (
-               new => 1,
+               new => 0,
                rw  => [ qw(number rolls nextFrame) ],
            );
 
-sub init {
-  my $self = shift;
-  if ( $self->number == 10){
-    $self->rolls = [undef,undef,undef];
+sub new {
+
+  my ($self, %params) = @_;
+
+  my $obj = bless \%params, $self;
+
+  if ( $obj->number == 10){
+    $obj->rolls([undef,undef,undef]);
   }
   else{
-    $self->rolls = [undef,undef];
+    $obj->rolls([undef,undef]);
   }
+
+  return $obj;
+
 }
 
 sub roll {
