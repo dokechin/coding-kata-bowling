@@ -1,5 +1,4 @@
 package t::Bowling::Game;
-use v5.18;
 use warnings;
 
 use parent qw(Test::Class);
@@ -12,7 +11,7 @@ sub _require : Test(startup => 1) {
 sub _prepare_game : Test(setup => 1) {
     my ($self) = @_;
 
-    $self->{game} = Bowling::Game->new;
+    $self->{game} = Bowling::Game->new();
     isa_ok $self->{game}, 'Bowling::Game';
 }
 
@@ -21,7 +20,7 @@ sub _roll_many {
     my $game = $self->{game};
 
     for my $i (0..($n-1)) {
-        $game->role($pins);
+        $game->roll($pins);
     }
 }
 
@@ -29,15 +28,15 @@ sub _roll_strike {
     my ($self, $n, $pins) = @_;
     my $game = $self->{game};
 
-    $game->role(10);
+    $game->roll(10);
 }
 
 sub _roll_spare {
     my ($self, $n, $pins) = @_;
     my $game = $self->{game};
 
-    $game->role(5);
-    $game->role(5);
+    $game->roll(5);
+    $game->roll(5);
 }
 
 sub gutter_game : Tests {
@@ -61,7 +60,7 @@ sub one_spare_game : Tests {
     my $game = $self->{game};
 
     $self->_roll_spare;
-    $game->role(3);
+    $game->roll(3);
     $self->_roll_many(17, 0);
     is $game->score, 16, 'score of game with only 1 spare is 16';
 }
@@ -70,9 +69,9 @@ sub one_strike_game : Tests {
     my ($self) = @_;
     my $game = $self->{game};
 
-    $game->role(10);
-    $game->role(3);
-    $game->role(4);
+    $game->roll(10);
+    $game->roll(3);
+    $game->roll(4);
     $self->_roll_many(16, 0);
     is $game->score, 24, 'score of game with only 1 strike is 24';
 }
