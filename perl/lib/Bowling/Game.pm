@@ -1,79 +1,71 @@
 package Bowling::Game;
-use v5.14;
-use warnings;
 
-use List::Util qw(sum);
+use Bowling::Frame;
+
+use Class::Accessor::Lite (
+               new => 0,
+               rw  => [ qw(frames current_frame current_throw) ],
+           );
 
 sub new {
-    my ($class) = @_;
 
-    my $self = bless {
-        rolls => [],
-        current_role => 0,
-    }, $class;
+  my ($self, %params) = @_;
+  my $obj = bless \%params, $self;
 
-    return $self;
+  my @frames = ();
+  my $prev;
+  for my $no(1..10){
+    my $new = Bowling::Frame->new();
+    $new->num($no);
+    push @frames, $new;
+    if (defined $prev){
+      $prev->nextFrame($new);
+    }
+    $prev = $new;
+
+  }
+  $obj->current_frame(1);
+  $obj->current_throw(1);
+  $obj->frames(\@frames);
+  
+  return $obj;
+
+
 }
 
-sub role {
-    my ($self, $pins) = @_;
-    $self->{rolls}->[$self->{current_role}] = $pins;
-    $self->{current_role} += 1;
+sub roll {
+  my $self = shift;
+  my $count = shift;
+  $self->frames->[$self->current_frame -1 ]->roll($self->current_throw, $count);
+  if ($self->current_frame == 10){
+    my $throw = $self->current_throw();
+    $throw++;
+    $self->current_throw($throw);
+   }
+  else{
+    if (($self->current_throw == 1 && $count == 10) || $self->current_throw == 2 ){
+      my $frame = $self->current_frame();
+      $frame++;
+      $self->current_frame($frame);
+      $self->current_throw(1);
+    }
+    else{
+      my $throw = $self->current_throw();
+      $throw++;
+      $self->current_throw($throw);
+    }
+  }
 }
+
 
 sub score {
-    my ($self) = @_;
-    my $score = 0;
-    my $frame_index = 0;
-    for (0..9) {
-        if ( $self->is_strike($frame_index) ) {
-            $score += 10 + $self->strike_bonus($frame_index);
-            $frame_index += 1;
-        } elsif ( $self->is_spare($frame_index) ) {
-            $score += 10 + $self->spare_bonus($frame_index);
-            $frame_index += 2;
-        } else {
-            $score += $self->sum_of_pins_in_frame($frame_index);
-            $frame_index += 2;
-        }
-    }
-    return $score;
+  my $self = shift;
+  my $sum = 0;
+  for $index(1.. $self->current_frame){
+    $sum = $sum + $self->frames->[$index-1]->score;
+  }
+  return $sum
 }
 
-sub pins_of_roll {
-    my ($self, $roll_n) = @_;
-    return $self->{rolls}->[$roll_n];
-}
-
-sub is_strike {
-    my ($self, $frame_index) = @_;
-    return $self->pins_of_roll($frame_index) == 10;
-}
-
-sub is_spare {
-    my ($self, $frame_index) = @_;
-    return
-        (  $self->pins_of_roll($frame_index)
-         + $self->pins_of_roll($frame_index + 1) ) == 10;
-}
-
-sub sum_of_pins_in_frame {
-    my ($self, $frame_index) = @_;
-    return $self->pins_of_roll($frame_index)
-         + $self->pins_of_roll($frame_index + 1);
-}
-
-sub strike_bonus {
-    my ($self, $frame_index) = @_;
-
-    return $self->pins_of_roll($frame_index + 1)
-         + $self->pins_of_roll($frame_index + 2);
-}
-
-sub spare_bonus {
-    my ($self, $frame_index) = @_;
-
-    return $self->pins_of_roll($frame_index + 2)
-}
 
 1;
