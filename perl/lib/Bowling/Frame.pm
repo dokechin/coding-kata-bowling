@@ -7,10 +7,16 @@ use Class::Accessor::Lite (
 
 sub new {
 
-  my ($self, %params) = @_;
-
-  my $obj = bless  \%params, $self;
-  $obj->rolls ([0,0,0]);
+  my $klass = shift;
+  my $obj = bless {
+      (@_ == 1 && ref($_[0]) eq 'HASH' ? %{$_[0]} : @_),
+    }, $klass;
+  if ($obj->num == 10){
+    $obj->rolls ([undef,undef,undef]);
+  }
+  else{
+    $obj->rolls ([undef,undef]);
+  }
 
   return $obj;
 

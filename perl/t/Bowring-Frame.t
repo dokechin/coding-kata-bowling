@@ -11,12 +11,9 @@ sub _require : Test(startup => 1) {
 sub _prepare_game : Test(setup => 1) {
     my ($self) = @_;
 
-    $self->{frame} = Bowling::Frame->new();
-    $self->{frame}->num(1);
-    $next1 = Bowling::Frame->new();
-    $next1->num(2);
-    $next2 = Bowling::Frame->new();
-    $next2->num(3);
+    $self->{frame} = Bowling::Frame->new({num=>1});
+    $next1 = Bowling::Frame->new({num=>2});
+    $next2 = Bowling::Frame->new({num=>3});
     $self->{frame}->nextFrame( $next1)->nextFrame($next2);
     isa_ok $self->{frame}, 'Bowling::Frame';
 }

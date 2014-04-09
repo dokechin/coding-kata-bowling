@@ -9,8 +9,10 @@ use Class::Accessor::Lite (
 
 sub new {
 
-  my ($self, %params) = @_;
-  my $obj = bless \%params, $self;
+  my $klass = shift;
+  my $obj = bless {
+      (@_ == 1 && ref($_[0]) eq 'HASH' ? %{$_[0]} : @_),
+    }, $klass;
 
   my @frames = ();
   my $prev;
@@ -22,12 +24,12 @@ sub new {
       $prev->nextFrame($new);
     }
     $prev = $new;
-
   }
+
   $obj->current_frame(1);
   $obj->current_throw(1);
   $obj->frames(\@frames);
-  
+
   return $obj;
 
 
